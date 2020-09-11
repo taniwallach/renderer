@@ -20,7 +20,7 @@ sub problem {
   if (defined($c->req->param('problemJWT'))) {
     $problemJWT = $c->req->param('problemJWT');
     my $claims = Mojo::JWT->new(secret => $ENV{JWTsecret})->decode($problemJWT);
-    $sessionJWT = Mojo::JWT->new(claims=>%inputs_ref, secret=>$ENV{JWTsecret})->encode;
+    $sessionJWT = Mojo::JWT->new(claims=>\%inputs_ref, secret=>$ENV{JWTsecret})->encode;
     $isLibreText = 1;
     $file_path = $claims->{webwork}{sourceFilePath};
     $random_seed = $claims->{webwork}{problemSeed};
@@ -48,32 +48,31 @@ sub problem {
   if ($isLibreText) {
     my $scoreHash = {};
     my $answerNum =0;
-    foreach my $ans_id (@{$ww_return_hash->{flags}{ANSWER_ENTRY_ORDER}}) {
+
+    foreach my $ans_id (keys %{$ww_return_hash->{answers}}) {
       $answerNum++;  # start with 1, this is also the row number
-      $scoreHash->{$answerNumber} = {
+      $scoreHash->{$answerNum} = {
         ans_id => $ans_id,
-        answer => %{$ww_return_hash->{answers}{$ans_id}} // (),
-        score => $rh_answers->{answers}{$ans_id}{score} // 0,
+        answer => $ww_return_hash->{answers}{$ans_id} // {},
+        score => $ww_return_hash->{answers}{$ans_id}{score} // 0,
       };
     }
     my $scoreJSON = encode_json($scoreHash);
-    
-    my %responseHash = {
+
+    my $responseHash = {
       problemJWT => $problemJWT,
       sessionJWT => $sessionJWT,
-      score => %{$scoreHash}
+      score => $scoreHash
     };
-    my $answerJWT = Mojo::JWT->new(claims=>%responseHash, secret=>$ENV{JWTsecret});
+    my $answerJWT = Mojo::JWT->new(claims=>$responseHash, secret=>$ENV{JWTsecret})->encode;
 
     my $ua  = Mojo::UserAgent->new;
-    my $response = $ua->post($ENV{JWTanswerURL}, {
+    my $response = $ua->post_p($ENV{JWTanswerURL}, {
       'Accept' => 'application/json',
       'Authorization' => "Bearer $answerJWT",
       'Host' => $ENV{JWTanswerHost},
-
-    });
-    warn "A wild `LibreText` has appeared! --response: \n";
-    warn Data::Dumper($response);
+    })->catch(sub {print shift})->wait;
+    #warn "A wild `LibreText` has appeared! --sending: $answerJWT\n";
   }
 
   $c->respond_to(

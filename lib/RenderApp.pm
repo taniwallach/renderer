@@ -42,6 +42,9 @@ sub startup {
   $self->plugin('Config');
 	$self->plugin('TagHelpers');
   $self->secrets($self->config('secrets'));
+	$ENV{JWTsecret} = 'webwork'; #$c->config('JWTsecret');
+	$ENV{JWTanswerHost} = 'localhost:3000';
+	$ENV{JWTanswerURL} = 'http://localhost:3000/request';
 
   # Models
   $self->helper(newProblem => sub { shift; RenderApp::Model::Problem->new(@_) });
