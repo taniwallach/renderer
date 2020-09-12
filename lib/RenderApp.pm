@@ -42,9 +42,9 @@ sub startup {
   $self->plugin('Config');
 	$self->plugin('TagHelpers');
   $self->secrets($self->config('secrets'));
-	$ENV{JWTsecret} = $c->config('JWTsecret');
-	$ENV{JWTanswerHost} = $c->config('JWTanswerHost');
-	$ENV{JWTanswerURL} = $c->config('JWTanswerURL');
+	$ENV{JWTsecret} = $self->config('JWTsecret');
+	$ENV{JWTanswerHost} = $self->config('JWTanswerHost');
+	$ENV{JWTanswerURL} = $self->config('JWTanswerURL');
 
   # Models
   $self->helper(newProblem => sub { shift; RenderApp::Model::Problem->new(@_) });
