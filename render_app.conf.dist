@@ -4,5 +4,8 @@
   form => '/render-api',
   JWTsecret => 'webwork',
   JWTanswerURL => 'http://submit.answerJWT.com/jwt-api/',
-  JWTanswerURL => 'submit.answerJWT.com'
+  JWTanswerURL => 'submit.answerJWT.com',
+  hypnotoad => {
+    listen => ['http://*:3000']
+  }
 };
