@@ -157,7 +157,7 @@ sub process_problem {
 
 	# if base64 source is provided, use that over fetching problem path
 	if ($inputs_ref->{problemSource} && $inputs_ref->{problemSource} =~ m/\S/) {
-		$source = decode_base64($inputs_ref->{problemSource});
+		$source = Encode::decode("UTF-8",decode_base64($inputs_ref->{problemSource}));
 	} else {
 		($adj_file_path, $source) = get_source($file_path);
 		# WHY are there so many fields in which to stash the file path?

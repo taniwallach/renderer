@@ -14,7 +14,7 @@ sub raw {
 
 sub writer {
   my $c = shift;
-  my $source = decode_base64($c->param('problemSource'));
+  my $source = Encode::decode("UTF-8",decode_base64($c->param('problemSource')));
   my $file_path = $c->param('writeFilePath');
   my $problem = $c->newProblem({log => $c->log, write_path=>$file_path, problem_contents=>$source});
 
