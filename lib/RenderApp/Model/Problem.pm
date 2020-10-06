@@ -142,7 +142,7 @@ sub save {
   $self->{_error} = "405 I cannot write to that path." unless (-w $write_path->dirname);
   return 0 unless $self->success();
 
-  $write_path->spurt($self->{problem_contents});
+  $write_path->spurt( Encode::encode('UTF-8', $self->{problem_contents} ) );
 
   return 1;
 }
@@ -151,7 +151,7 @@ sub load {
   my $self = shift;
   my $success = 0;
   if (-r $self->{read_path}) {
-    $self->{problem_contents} = $self->{read_path}->slurp;
+    $self->{problem_contents} = Encode::decode( "UTF-8", $self->{read_path}->slurp );
     $success = 1;
   } else {
     $self->{_error} = "404 Problem set with un-read-able read_path.";
